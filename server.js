@@ -144,6 +144,7 @@ function addEmployee() {
                         break;
                 }
                 let query = `INSERT INTO employee SET ?`;
+                // "INSERT INTO employee (first_name, last_name, role_id) VALUES (?, ?, ?)"
                 connection.query(query,
                     {
                         first_name: answer.first_name,
