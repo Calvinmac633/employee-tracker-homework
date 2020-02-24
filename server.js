@@ -61,8 +61,8 @@ function runSearch() {
 function viewEmployees() {
     //
     const query =
-        `SELECT e.id, e.first_name, e.last_name, r.title, d.name AS dept_name, 
-        r.salary, CONCAT(emp.first_name, ' ', emp.last_name) AS manager
+        `SELECT e.id, e.first_name, e.last_name, r.title, r.salary, d.name AS dept_name, 
+        CONCAT(emp.first_name, ' ', emp.last_name) AS manager
         FROM employee e
         LEFT JOIN role r
 	    ON e.role_id = r.id
