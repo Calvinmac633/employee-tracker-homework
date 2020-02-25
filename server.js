@@ -34,9 +34,11 @@ function runSearch() {
                 "Remove Employee",
                 // "Update Employee Role",
                 // "Update Employee Manager",
-                // "View All Roles",
+                "View All Roles",
+                "View All Departments",
+                "Add Department",
                 "Add Role",
-                // "Remove Role",
+                "Remove Role",
                 // "Exit"
             ]
         })
@@ -56,6 +58,18 @@ function runSearch() {
                     break;
                 case "Add Role":
                     addRole();
+                    break;
+                case "Add Department":
+                    addDepartment();
+                    break;
+                case "View All Roles":
+                    viewRoles();
+                    break;
+                case "View All Departments":
+                    viewDepartments();
+                    break;
+                case "Remove Role":
+                    removeRole();
                     break;
             }
         })
@@ -128,7 +142,7 @@ function addEmployee() {
                             break;
                     }
                 }
-                
+
                 let query = `INSERT INTO employee SET ?`;
                 // "INSERT INTO employee (first_name, last_name, role_id) VALUES (?, ?, ?)"
                 connection.query(query,
@@ -157,7 +171,7 @@ function removeEmployee() {
                 {
                     name: "remove",
                     type: "rawlist",
-                    message: "Select and employee to remove...",
+                    message: "Select an employee to remove...",
                     choices: function () {
                         let choiceArray = [];
                         for (let i = 0; i < res.length; i++) {
@@ -220,18 +234,14 @@ function addRole() {
                 }
             ])
             .then(function (answer) {
-                console.log(answer.title)
-                let department = answer.department;
-                switch (department) {
-                    case "Accounting":
-                        department = 1;
-                        break;
-                    case "Finance":
-                        department = 2;
-                        break;
-                    case "Legal":
-                        department = 3;
-                        break;
+                console.log(answer.department)
+                let department = answer.depart;
+                for (let i = 0; i < res.length; i++) {
+                    switch (department) {
+                        case res[i].department:
+                            department = i + 1;
+                            break;
+                    }
                 }
                 let query = `INSERT INTO role SET ?`;
                 // "INSERT INTO employee (first_name, last_name, role_id) VALUES (?, ?, ?)"
@@ -248,6 +258,115 @@ function addRole() {
                         runSearch();
                     }
                 )
+            })
+    })
+}
+
+function addDepartment() {
+    //use query to selelect role table
+    //store into a roleChoices const
+    //use this to put into addEmployeePrompt
+    //ask first, last, role, manager first and last
+
+    const query = "SELECT id, name FROM department";
+    connection.query(query, function (err, res) {
+        console.log(res)
+    })
+
+    connection.query(`SELECT * FROM department`, function (err, res) {
+        if (err) throw err;
+        console.log(res)
+        inquirer
+            .prompt([
+                {
+                    name: "name",
+                    type: "input",
+                    message: "What is the name of the new department?"
+                }
+            ])
+            .then(function (answer) {
+                console.log(answer.title)
+
+                let query = `INSERT INTO department SET ?`;
+                // "INSERT INTO employee (first_name, last_name, role_id) VALUES (?, ?, ?)"
+                connection.query(query,
+                    {
+                        name: answer.name
+                    },
+                    function (err, res) {
+                        if (err) throw err;
+                        console.table(res);
+                        console.log(res.insertedRows + " Rows inserted")
+                        runSearch();
+                    }
+                )
+            })
+    })
+}
+
+function viewRoles() {
+    //
+    const query =
+        "SELECT * FROM role"
+
+    connection.query(query, function (err, res) {
+        if (err) throw err;
+
+        console.table(res);
+        console.log("Employees viewed!\n");
+
+        runSearch();
+    });
+}
+
+function viewDepartments() {
+    //
+    const query =
+        "SELECT * FROM department"
+
+    connection.query(query, function (err, res) {
+        if (err) throw err;
+
+        console.table(res);
+        console.log("Employees viewed!\n");
+
+        runSearch();
+    });
+}
+
+function removeRole() {
+    const query = "SELECT id, title FROM role";
+    connection.query(query, function (err, res) {
+        if (err) {
+            connection.log(err)
+        }
+        console.log(res)
+        inquirer
+            .prompt([
+                {
+                    name: "roleRemove",
+                    type: "rawlist",
+                    message: "Select a role to remove...",
+                    choices: function () {
+                        if (err) {
+                            console.log(err)
+                        }
+                        let choiceArray = [];
+                        for (let i = 0; i < res.length; i++) {
+                            choiceArray.push(res[i].title);
+                        }
+                        return choiceArray;
+                    }
+                }
+            ])
+            .then(function (answer) {
+                console.log(answer.roleRemove)
+                const query = "DELETE FROM role WHERE ?";
+                connection.query(query, [{ title: answer.roleRemove }], function (err, res) {
+                    if (err) throw err;
+                    console.log("EMPLOYEE HAS BEEN DELETED");
+                    runSearch();
+                })
             })
     })
 }
