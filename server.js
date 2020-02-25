@@ -35,7 +35,7 @@ function runSearch() {
                 // "Update Employee Role",
                 // "Update Employee Manager",
                 // "View All Roles",
-                // "Add Role",
+                "Add Role",
                 // "Remove Role",
                 // "Exit"
             ]
@@ -53,6 +53,9 @@ function runSearch() {
                     break;
                 case "Remove Employee":
                     removeEmployee();
+                    break;
+                case "Add Role":
+                    addRole();
                     break;
             }
         })
@@ -87,11 +90,6 @@ function addEmployee() {
     //use this to put into addEmployeePrompt
     //ask first, last, role, manager first and last
 
-    const query = "SELECT id, title FROM role";
-    connection.query(query, function (err, res) {
-        console.log(res)
-    })
-
     connection.query(`SELECT * FROM role`, function (err, res) {
         if (err) throw err;
         console.log(res)
@@ -123,26 +121,14 @@ function addEmployee() {
             .then(function (answer) {
                 console.log(answer.title)
                 let title = answer.title;
-                switch (title) {
-                    case "Accountant":
-                        title = 1;
-                        break;
-                    case "Analyst":
-                        title = 2;
-                        break;
-                    case "Legal Associate":
-                        title = 3;
-                        break;
-                    case "Partner":
-                        title = 4;
-                        break;
-                    case "Actuary":
-                        title = 5;
-                        break;
-                    case "Lawyer":
-                        title = 6;
-                        break;
+                for (let i = 0; i < res.length; i++) {
+                    switch (title) {
+                        case res[i].title:
+                            title = i + 1;
+                            break;
+                    }
                 }
+                
                 let query = `INSERT INTO employee SET ?`;
                 // "INSERT INTO employee (first_name, last_name, role_id) VALUES (?, ?, ?)"
                 connection.query(query,
@@ -167,66 +153,67 @@ function removeEmployee() {
     connection.query(query, function (err, res) {
         console.log(res)
         inquirer
-        .prompt([
-            {
-                name: "remove",
-                type: "rawlist",
-                message: "Select and employee to remove...",
-                choices: function () {
-                    let choiceArray = [];
-                    for (let i = 0; i < res.length; i++) {
-                        choiceArray.push(res[i].first_name);
+            .prompt([
+                {
+                    name: "remove",
+                    type: "rawlist",
+                    message: "Select and employee to remove...",
+                    choices: function () {
+                        let choiceArray = [];
+                        for (let i = 0; i < res.length; i++) {
+                            choiceArray.push(res[i].first_name);
+                        }
+                        return choiceArray;
                     }
-                    return choiceArray;
                 }
-            }
-        ])
-        .then(function(answer) {
-            console.log(answer.remove)
-            const query = "DELETE FROM employee WHERE ?";
-            connection.query(query, [{first_name: answer.remove }], function(err, res) {
-                if (err) throw err;
-                console.log("EMPLOYEE HAS BEEN DELETED");
-                runSearch();
+            ])
+            .then(function (answer) {
+                console.log(answer.remove)
+                const query = "DELETE FROM employee WHERE ?";
+                connection.query(query, [{ first_name: answer.remove }], function (err, res) {
+                    if (err) throw err;
+                    console.log("EMPLOYEE HAS BEEN DELETED");
+                    runSearch();
+                })
             })
-        })
     })
 }
 
-function addEmployee() {
+function addRole() {
     //use query to selelect role table
     //store into a roleChoices const
     //use this to put into addEmployeePrompt
     //ask first, last, role, manager first and last
 
-    const query = "SELECT id, title FROM role";
+    const query = "SELECT id, name FROM department";
     connection.query(query, function (err, res) {
         console.log(res)
     })
 
-    connection.query(`SELECT * FROM role`, function (err, res) {
+    connection.query(`SELECT * FROM department`, function (err, res) {
         if (err) throw err;
         console.log(res)
         inquirer
             .prompt([
                 {
-                    name: "first_name",
-                    type: "input",
-                    message: "What is the employee's first name?"
-                },
-                {
-                    name: "last_name",
-                    type: "input",
-                    message: "What is the employee's last name?"
-                },
-                {
                     name: "title",
+                    type: "input",
+                    message: "What is the name of the new role?"
+                },
+                {
+                    name: "salary",
+                    type: "input",
+                    message: "What is the role's annual salary?"
+                },
+                {
+                    name: "department",
                     type: "rawlist",
-                    message: "What is the employee's title?",
+                    message: "What is the role's department?",
+                    ////////CONTINUE HERE - change title
                     choices: function () {
                         let choiceArray = [];
                         for (let i = 0; i < res.length; i++) {
-                            choiceArray.push(res[i].title);
+                            choiceArray.push(res[i].name);
                         }
                         return choiceArray;
                     }
@@ -234,34 +221,25 @@ function addEmployee() {
             ])
             .then(function (answer) {
                 console.log(answer.title)
-                let title = answer.title;
-                switch (title) {
-                    case "Accountant":
-                        title = 1;
+                let department = answer.department;
+                switch (department) {
+                    case "Accounting":
+                        department = 1;
                         break;
-                    case "Analyst":
-                        title = 2;
+                    case "Finance":
+                        department = 2;
                         break;
-                    case "Legal Associate":
-                        title = 3;
-                        break;
-                    case "Partner":
-                        title = 4;
-                        break;
-                    case "Actuary":
-                        title = 5;
-                        break;
-                    case "Lawyer":
-                        title = 6;
+                    case "Legal":
+                        department = 3;
                         break;
                 }
-                let query = `INSERT INTO employee SET ?`;
+                let query = `INSERT INTO role SET ?`;
                 // "INSERT INTO employee (first_name, last_name, role_id) VALUES (?, ?, ?)"
                 connection.query(query,
                     {
-                        first_name: answer.first_name,
-                        last_name: answer.last_name,
-                        role_id: title
+                        title: answer.title,
+                        salary: answer.salary,
+                        department_id: department
                     },
                     function (err, res) {
                         if (err) throw err;

@@ -194,6 +194,28 @@ function songAndAlbumSearch() {
 }
 
 
+switch (title) {
+  case res[0].title:
+      title = 1;
+      break;
+  case "Analyst":
+      title = 2;
+      break;
+  case "Legal Associate":
+      title = 3;
+      break;
+  case "Partner":
+      title = 4;
+      break;
+  case "Actuary":
+      title = 5;
+      break;
+  case "Lawyer":
+      title = 6;
+      break;
+}
+
+
 
 
 
