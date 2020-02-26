@@ -32,7 +32,7 @@ function runSearch() {
                 // "View All Employees By Manager",
                 "Add Employee",
                 "Remove Employee",
-                // "Update Employee Role",
+                "Update Employee Role",
                 // "Update Employee Manager",
                 "View All Roles",
                 "View All Departments",
@@ -70,6 +70,9 @@ function runSearch() {
                     break;
                 case "Remove Role":
                     removeRole();
+                    break;
+                case "Update Employee Role":
+                    updateEmployeeRole();
                     break;
             }
         })
@@ -365,6 +368,61 @@ function removeRole() {
                 connection.query(query, [{ title: answer.roleRemove }], function (err, res) {
                     if (err) throw err;
                     console.log("EMPLOYEE HAS BEEN DELETED");
+                    runSearch();
+                })
+            })
+    })
+}
+
+function updateEmployeeRole() {
+    // const query = "SELECT id, first_name, last_name, role_id FROM employee";
+    const query = "SELECT e.id, e.first_name, e.last_name, r.title, FROM employee e LEFT JOIN role r ON e.role_id = r.id";
+    connection.query(query, function (err, res) {
+        if (err) {
+            console.log(err)
+        }
+        console.log(res)
+        inquirer
+            .prompt([
+                {
+                    name: "update",
+                    type: "rawlist",
+                    message: "Select an employee to update...",
+                    choices: function () {
+                        let choiceArray = [];
+                        for (let i = 0; i < res.length; i++) {
+                            choiceArray.push(res[i].first_name);
+                        }
+                        return choiceArray;
+                    }
+                },
+                {
+                    name: "newRole",
+                    type: "rawlist",
+                    message: "What is their new role?",
+                    choices: function () {
+                        // const query = "SELECT * FROM role";
+                        // connection.query(query, function (err, result) {
+                        //     if (err) {
+                        //         console.log(err)
+                        //     }
+                            let choiceArray = [];
+                            for (let i = 0; i < res.length; i++) {
+                                choiceArray.push(res[i].title);
+                            }
+                            return choiceArray;
+
+                        // });
+
+                    }
+                }
+            ])
+            .then(function (answer) {
+                console.log(answer.update)
+                const query = "UPDATE employee SET role_id = ?? WHERE first_name = ??";
+                connection.query(query, [answer.update, answer.newRole], function (err, res) {
+                    if (err) throw err;
+                    console.log("Role has been updated");
                     runSearch();
                 })
             })
