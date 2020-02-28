@@ -376,25 +376,43 @@ function removeRole() {
 
 function updateEmployeeRole() {
     // const query = "SELECT id, first_name, last_name, role_id FROM employee";
-    const query = "SELECT e.id, e.first_name, e.last_name, r.title, FROM employee e LEFT JOIN role r ON e.role_id = r.id";
+    const query =
+        // `SELECT e.id, e.first_name, e.last_name, r.title, r.salary, d.name AS dept_name, 
+        // CONCAT(emp.first_name, ' ', emp.last_name) AS manager
+        // FROM employee e
+        // LEFT JOIN role r
+	    // ON e.role_id = r.id
+        // LEFT JOIN department d
+        // ON d.id = r.department_id
+        // LEFT JOIN employee emp
+        // ON emp.id = e.manager_id`;
+        `SELECT r.id, r.title, e.first_name, e.last_name, e.role_id
+        FROM role r
+        LEFT JOIN employee e
+        ON r.id = e.role_id`
+        // `SELECT e.first_name, e.last_name, e.role_id, r.id, r.title
+        // FROM employee e
+        // LEFT JOIN role r
+        // on e.role_id = r.id`
     connection.query(query, function (err, res) {
         if (err) {
             console.log(err)
         }
-        console.log(res)
+        console.table(res)
+        const notNullNameArray = [];
+        res.forEach(element => {
+            if(element.first_name !== null) {
+                notNullNameArray.push(element.first_name)
+            }
+        });
+        console.log(notNullNameArray)
         inquirer
             .prompt([
                 {
                     name: "update",
                     type: "rawlist",
                     message: "Select an employee to update...",
-                    choices: function () {
-                        let choiceArray = [];
-                        for (let i = 0; i < res.length; i++) {
-                            choiceArray.push(res[i].first_name);
-                        }
-                        return choiceArray;
-                    }
+                    choices: notNullNameArray
                 },
                 {
                     name: "newRole",
@@ -418,9 +436,37 @@ function updateEmployeeRole() {
                 }
             ])
             .then(function (answer) {
-                console.log(answer.update)
+                console.log(answer.newRole)
+                console.log(res[1].title)
+                let updatedRole = answer.newRole;
+                switch (updatedRole) {
+                    case res[0].title:
+                        udaptedRole = 1;
+                        break;
+                    case res[1].title:
+                        udaptedRole = 2;
+                        break;
+                    case res[2].title:
+                        udaptedRole = 3;
+                        break;
+                    case res[3].title:
+                        udaptedRole = 4;
+                        break;
+                    case res[4].title:
+                        udaptedRole = 5;
+                        break;
+                    case res[5].title:
+                        udaptedRole = 6;
+                        break;
+                    case res[6].title:
+                        udaptedRole = 7;
+                        break;
+                    default:
+                        break;
+                }
+                console.log(udpatedRole)
                 const query = "UPDATE employee SET role_id = ?? WHERE first_name = ??";
-                connection.query(query, [answer.update, answer.newRole], function (err, res) {
+                connection.query(query, [udpatedRole, answer.update], function (err, res) {
                     if (err) throw err;
                     console.log("Role has been updated");
                     runSearch();
