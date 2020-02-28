@@ -110,58 +110,58 @@ function addRole() {
         if (err) throw err;
         console.log(res)
         inquirer
-        .prompt([
-            {
-                name: "roleName",
-                type: "input",
-                message: "What is the name of the new role?"
-            },
-            {
-                name: "roleSalary",
-                type: "input",
-                message: "What is the role's salary?"
-            },
-            {
-                name: "department",
-                type: "rawlist",
-                message: "What department is the role in",
-                choices: function () {
-                    let choiceArray = [];
-                    for (let i = 0; i < res.length; i++) {
-                        choiceArray.push(res[i].name);
-                    }
-                    return choiceArray;
-                }
-            }
-        ]).then(function (answer) {
-            console.log(answer.department)
-            let dpt = answer.department;
-            for (let i = 0; i < res.length; i++) {
-                switch (dpt) {
-                    case res[i].name:
-                        console.log(res[i].name)
-                        dpt = i + 1;
-                        console.log(dpt)
-                        break;
-                }
-            }
-
-            let query = `INSERT INTO role SET ?`;
-            // "INSERT INTO employee (first_name, last_name, role_id) VALUES (?, ?, ?)"
-            connection.query(query,
+            .prompt([
                 {
-                    title: answer.roleName,
-                    salary: answer.roleSalary,
-                    department_id: dpt
+                    name: "roleName",
+                    type: "input",
+                    message: "What is the name of the new role?"
                 },
-                function (err, res) {
-                    if (err) throw err;
-                    console.table(res);
-                    console.log(res.insertedRows + " Rows inserted")
-                    runSearch();
+                {
+                    name: "roleSalary",
+                    type: "input",
+                    message: "What is the role's salary?"
+                },
+                {
+                    name: "department",
+                    type: "rawlist",
+                    message: "What department is the role in",
+                    choices: function () {
+                        let choiceArray = [];
+                        for (let i = 0; i < res.length; i++) {
+                            choiceArray.push(res[i].name);
+                        }
+                        return choiceArray;
+                    }
                 }
-            )
-        })
+            ]).then(function (answer) {
+                console.log(answer.department)
+                let dpt = answer.department;
+                for (let i = 0; i < res.length; i++) {
+                    switch (dpt) {
+                        case res[i].name:
+                            console.log(res[i].name)
+                            dpt = i + 1;
+                            console.log(dpt)
+                            break;
+                    }
+                }
+
+                let query = `INSERT INTO role SET ?`;
+                // "INSERT INTO employee (first_name, last_name, role_id) VALUES (?, ?, ?)"
+                connection.query(query,
+                    {
+                        title: answer.roleName,
+                        salary: answer.roleSalary,
+                        department_id: dpt
+                    },
+                    function (err, res) {
+                        if (err) throw err;
+                        console.table(res);
+                        console.log(res.insertedRows + " Rows inserted")
+                        runSearch();
+                    }
+                )
+            })
     })
 }
 
@@ -471,17 +471,23 @@ function updateEmployeeRole() {
                 let updatedRole = answer.newRole;
                 for (let i = 0; i < res.length; i++) {
                     switch (updatedRole) {
-                        case res[i].title:
+                        case roleArray[i]:
+                            console.log(roleArray[i])
                             updatedRole = i + 1;
+                            console.log(updatedRole + " is the ID")
                             break;
                     }
                 }
-                let query = "UPDATE employee SET role_id = ?? WHERE first_name = ??";
-                connection.query(query, [udpatedRole, answer.update], function (err, res) {
-                    if (err) throw err;
-                    console.log("Role has been updated");
-                    runSearch();
-                })
+                // let query = "UPDATE employee SET role_id = ?? WHERE first_name = ??";
+                let query2 = "UPDATE employee SET ? WHERE ?";
+                connection.query(query2,
+                    [{role_id: updatedRole}, {first_name: answer.update}],
+                    function (err, res) {
+                        if (err) throw err;
+                        console.log("Role has been updated");
+                        runSearch();
+                    }
+                )
             })
     })
 }
