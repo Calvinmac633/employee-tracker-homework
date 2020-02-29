@@ -34,4 +34,4 @@ INSERT INTO role (title, salary, department_id)
 VALUES ("Accountant", 60000, 1), ("Analyst", 70000, 2), ("Legal Associate", 65000, 3), ("Partner", 100000, 1), ("Actuary", 120000, 2), ("Lawyer", 110000, 3) ;
 
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Calvin", "Macintosh", 2, 2), ("Bossman", "Jones", 5, null) ;
+VALUES ("Calvin", "Macintosh", 2, 2), ("Bossman", "Jones", 5, null), ("Chuck", "Smith", 3, 2), ("Riley", "McIntyre", 6, 2), ("Toby", "Shmoby", 5, 2), ("Tabby", "Blabby", 4, null) ;
